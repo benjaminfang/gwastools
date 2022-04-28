@@ -1,0 +1,6 @@
+#ifndef BESDTOOL_VERSION_HEAD
+#define BESDTOOL_VERSION_HEAD
+
+#define BESDTOOL_VERSION "v0.0.1"
+
+#endif
