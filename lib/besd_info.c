@@ -1,9 +1,9 @@
-#include "besdtype.h"
 #include <stdio.h>
 
+#include "besd_info.h"
 
 int
-get_besd_info(char * besd_filename, besd_info * besd_info_dt)
+get_besd_info(const char * besd_filename, besd_info * besd_info_dt)
 {
     int exit_status = 0;
 

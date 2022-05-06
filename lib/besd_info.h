@@ -20,4 +20,6 @@ typedef struct {
 
 } besd_info;
 
+int get_besd_info(const char * besd_filename, besd_info * besd_info_dt);
+
 #endif
