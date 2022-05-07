@@ -1,0 +1,4 @@
+#ifndef BESDTOOL_CONFIG_HEAD
+#define BESDTOOL_CONFIG_HEAD
+
+#endif

@@ -1,5 +1,5 @@
-#ifndef BESD_INFO_HEAD
-#define BESD_INFO_HEAD
+#ifndef BESDLIB_HEAD
+#define BESDLIB_HEAD
 
 #define DENSE 5
 #define SMR_DENSE_3 5
