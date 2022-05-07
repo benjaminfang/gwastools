@@ -12,14 +12,4 @@
 #define DENSE2 13
 #define SPARSE2 14
 
-typedef struct {
-  int file_type;
-  int sample_size;
-  int esi_num;
-  int epi_num;
-
-} besd_info;
-
-int get_besd_info(const char * besd_filename, besd_info * besd_info_dt);
-
 #endif
