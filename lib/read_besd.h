@@ -1,7 +1,18 @@
 #ifndef READ_BESD_HEAD
 #define READ_BESD_HEAD
 
+typedef struct {
+  int file_type;
+  int sample_size;
+  int esi_num;
+  int epi_num;
+
+} besd_info;
+
 #ifndef READ_BESD_SRC
+
+int get_besd_info(const char* besd_filename, besd_info* besd_info_dt);
+
 extern int extract_besd_epi_dense(const char* besd_filename, uint32_t epi_index,
                            float* beta_array, float* se_array);
 
