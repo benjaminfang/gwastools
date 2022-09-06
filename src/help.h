@@ -1,4 +1,4 @@
-#ifdef BESDTOOL_HELP_HEAD
+#ifndef BESDTOOL_HELP_HEAD
 #define BESDTOOL_HTLP_HEAD
 
 int help(int argc, char * argv[]);

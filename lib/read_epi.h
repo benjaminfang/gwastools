@@ -1,5 +1,6 @@
 #ifndef READ_EPI_HEAD
 #define READ_EPI_HEAD 1
+#include <stdint.h>
 
 typedef struct STRUC
 {
@@ -16,7 +17,7 @@ typedef struct STRUC
 
 
 void * read_epi(const char * epi_filename, epi_dt_list ** epi_dt);
-
+int free_epi_dt(epi_dt_list ** epi_dt);
 int sort_epi(epi_dt_list * epi_dt, epi_dt_list *** epi_dt_sorted);
 
 #endif

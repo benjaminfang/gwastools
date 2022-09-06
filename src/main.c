@@ -18,10 +18,12 @@ main (int argc, char * argv[])
                "benjaminfang.ol@outlook.com\n"
                "Usage: besdtool [--help][--version] subcommand [--help][options] <arguments>\n"
                "besdtool --help for help infomation\n");
+        exit(0);
     }
 
     if (strcmp(argv[1], "--version") == 0) {
         printf("besdtool version: %s\n", BESDTOOL_VERSION);
+        exit(0);
     }
 
     if (strcmp(argv[1], "--help") == 0) {
@@ -32,6 +34,7 @@ main (int argc, char * argv[])
                "help           : print help information.\n"
                "sort           : sort besd file.\n"
                "merge          : merge besd file.\n");
+        exit(0);
     }
  
     int subcommand_count = 0;

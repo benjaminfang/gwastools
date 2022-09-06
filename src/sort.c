@@ -7,12 +7,13 @@
 
 
 int
-sort_besd(int argc, char * argv[])
+sort(int argc, char * argv[])
 {
 
     char myname[] = "sort";
     char subcmd[32];
-    if (argc > 1 && strcmp() != 0) {
+    strcpy(subcmd, argv[1]);
+    if (argc > 1 && strcmp(myname, subcmd) != 0) {
         return 0;
     }
 
@@ -38,7 +39,6 @@ sort_besd(int argc, char * argv[])
     int epi_len = sort_epi(epi_dt, &epi_dt_sorted);
  
 
-    free_epi_dt(&epi_dt, &epi_dt_sorted);
 
 
     return 1;
@@ -63,9 +63,9 @@ print_sorted_epi(epi_dt_list ** epi_dt_sorted, int epi_len, const char * fout_fi
         } else if (dt_node -> chrom == 23) {
             strcpy(chrom, "X");
         } else if (dt_node -> chrom == 24) {
-            strcpy(chrom, "Y")
+            strcpy(chrom, "Y");
         } else {
-            sprintf(chrom, "%u", dt_node -> chrom)
+            sprintf(chrom, "%u", dt_node -> chrom);
         }
 
         if (dt_node -> epi_pos == 0) {

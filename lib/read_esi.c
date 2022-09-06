@@ -2,8 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <ctype.h>
 
 #include "read_esi.h"
+
+static int compare_esi(esi_dt_list * p1, esi_dt_list * p2);
 
 
 void *
@@ -143,7 +146,7 @@ sort_esi(esi_dt_list * esi_dt, esi_dt_list *** esi_dt_sorted)
     for (i = 1; i < esi_dt_len; i++) {
         p1 = esi_dt_addr[i];
         j = i - 1;
-        p2 = esi_dt_addr[j]
+        p2 = esi_dt_addr[j];
         while (j >= 0 && compare_esi(p1, p2) < 0) {
             esi_dt_addr[j + 1] = p2;
             p2 = esi_dt_addr[--j];
@@ -158,7 +161,7 @@ sort_esi(esi_dt_list * esi_dt, esi_dt_list *** esi_dt_sorted)
 }
 
 
-int
+static int
 compare_esi(esi_dt_list * p1, esi_dt_list * p2)
 {
     int compare_res = 0;
@@ -186,6 +189,6 @@ compare_esi(esi_dt_list * p1, esi_dt_list * p2)
         compare_res += 0;
     }
 
-    return compare_esi;
+    return compare_res;
 }
 
