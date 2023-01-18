@@ -1,69 +1,12 @@
 #include <ctype.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
-#define CharM1 0x03
-#define CharM2 0x0c
-#define CharM3 0x30
-
-#define CONVERT_GENO(x) ((x) == 0)? 2: (((x) == 2)? 1: (((x) == 3)? 0: 4)) 
-
-typedef struct bim_node {
-    char chrom;
-    char rsid[64];
-    float phy_pos;
-    uint32_t pos;
-    char *allel1;
-    char *allel2;
-    struct bim_node *next;
-
-} BIM_NODE, *BIM_NODE_ptr;
-
-typedef struct {
-    uint32_t line_num;
-    uint32_t current_node_index;
-    BIM_NODE_ptr current_node;
-    BIM_NODE_ptr bim_data;
-    BIM_NODE_ptr *bim_data_ptr_array;
-} BIM_DATA, *BIM_DATA_ptr;
-
-
-typedef struct fam_node {
-    char family_id[64];
-    char within_famid[64];
-    char father_id[64];
-    char mother_id[64];
-    char sex;
-    char phenotype_value;
-    struct fam_node *next;
-} FAM_NODE, *FAM_NODE_ptr;
-
-typedef struct {
-    uint32_t line_num;
-    FAM_NODE_ptr current_node;
-    uint32_t current_node_index;
-    FAM_NODE_ptr fam_data;
-    FAM_NODE_ptr *fam_data_ptr_array;
-} FAM_DATA, *FAM_DATA_ptr;
-
-
-typedef struct {
-    char magic_char[3];
-    uint32_t indiv_num;
-    uint32_t variant_num;
-    FILE *filehandle;
-    uint32_t current_variant;
-    uint64_t current_file_pos;
-    uint64_t data_len;
-    char *data;
-    uint32_t read_buf_len;
-    uint8_t * read_buf;
-} BED_DATA, *BED_DATA_ptr;
-
+#include "plink_file.h"
 
 static int
 clean_bim_data(BIM_DATA_ptr data_in)
