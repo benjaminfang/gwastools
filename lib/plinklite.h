@@ -92,24 +92,24 @@ typedef struct bim_line {
 } BIM_LINE, *BIM_LINE_ptr;
 
 PLINKLITE_EXTERN PLINKFILE plinkopen(const char *filename);
-PLINKLITE_EXTERN void plinkclose(PLINKFILE plink_data);
+PLINKLITE_EXTERN void plinkclose(PLINKFILE_ptr plink_data);
 
-PLINKLITE_EXTERN int famreadline(PLINKFILE plink_data, FAM_LINE_ptr fam_line);
-PLINKLITE_EXTERN int famreadlines(PLINKFILE plink_data, FAM_LINE_ptr fam_lines,
+PLINKLITE_EXTERN int famreadline(PLINKFILE_ptr plink_data, FAM_LINE_ptr fam_line);
+PLINKLITE_EXTERN int famreadlines(PLINKFILE_ptr plink_data, FAM_LINE_ptr fam_lines,
                                   uint32_t fam_line_num);
 
-PLINKLITE_EXTERN int bimreadline(PLINKFILE plink_dara, BIM_LINE_ptr bim_line);
+PLINKLITE_EXTERN int bimreadline(PLINKFILE_ptr plink_dara, BIM_LINE_ptr bim_line);
 
-PLINKLITE_EXTERN int bimreadlines(PLINKFILE plink_data, BIM_LINE_ptr bim_lines,
+PLINKLITE_EXTERN int bimreadlines(PLINKFILE_ptr plink_data, BIM_LINE_ptr bim_lines,
                                   int bim_line_num);
 
-PLINKLITE_EXTERN int bedreaddata(PLINKFILE plink_data, char *bed_data,
+PLINKLITE_EXTERN int bedreaddata(PLINKFILE_ptr plink_data, char *bed_data,
                                  int bed_data_len);
 
-PLINKLITE_EXTERN int bedloaddata_n(PLINKFILE plink_data, char *bed_data,
+PLINKLITE_EXTERN int bedloaddata_n(PLINKFILE_ptr plink_data, char *bed_data,
                                    size_t bed_data_len, int start, int end);
 
-PLINKLITE_EXTERN int bedloaddata_all(PLINKFILE plink_data, char *bed_data,
+PLINKLITE_EXTERN int bedloaddata_all(PLINKFILE_ptr plink_data, char *bed_data,
                                      size_t bed_data_len);
 #endif
 

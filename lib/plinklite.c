@@ -227,11 +227,11 @@ plinkinfo(void)
 
 
 int
-famreadline(PLINKFILE plink_data, FAM_LINE_ptr fam_line)
+famreadline(PLINKFILE_ptr plink_data, FAM_LINE_ptr fam_line)
 {
    
-    FILE *fin = plink_data.fam_file;
-    char *line_buf = plink_data.line_buf;
+    FILE *fin = plink_data->fam_file;
+    char *line_buf = plink_data->line_buf;
     line_buf[PLINK_LINE_BUF_LEN - 1] = '\0';
 
     char fam_id[64];
@@ -249,7 +249,7 @@ famreadline(PLINKFILE plink_data, FAM_LINE_ptr fam_line)
 
 
     if (fgets(line_buf, PLINK_LINE_BUF_LEN, fin)) {
-        plink_data.current_fam_line_index += 1;
+
         
         if (line_buf[PLINK_LINE_BUF_LEN - 1] != '\0') {
             fprintf(stderr, "fam line buffer overflow.\n");
@@ -321,17 +321,18 @@ famreadline(PLINKFILE plink_data, FAM_LINE_ptr fam_line)
     } else {
         return -1;
     }
+    plink_data->current_fam_line_index += 1;
     return 0;
 }
 
 
 int
-famreadlines(PLINKFILE plink_data, FAM_LINE_ptr fam_lines, uint32_t fam_line_num)
+famreadlines(PLINKFILE_ptr plink_data, FAM_LINE_ptr fam_lines, uint32_t fam_line_num)
 {
 
-    FILE *fin = plink_data.fam_file;
+    FILE *fin = plink_data->fam_file;
     rewind(fin);
-    plink_data.current_fam_line_index = 0;
+    plink_data->current_fam_line_index = 0;
 
     if (fam_line_num != plink_data.individual_num) {
         fprintf(stderr, "fam line num do not match.\n");
@@ -348,11 +349,11 @@ famreadlines(PLINKFILE plink_data, FAM_LINE_ptr fam_lines, uint32_t fam_line_num
 
 
 int
-bimreadline(PLINKFILE plink_dara, BIM_LINE_ptr bim_line)
+bimreadline(PLINKFILE_ptr plink_dara, BIM_LINE_ptr bim_line)
 {
 
-    FILE *fin = plink_dara.bim_file;
-    char *line_buf = plink_dara.line_buf;
+    FILE *fin = plink_dara->bim_file;
+    char *line_buf = plink_dara->line_buf;
     line_buf[PLINK_LINE_BUF_LEN - 1] = '\0';
 
     char chrom[16];
@@ -371,7 +372,7 @@ bimreadline(PLINKFILE plink_dara, BIM_LINE_ptr bim_line)
     char *char_ptr = NULL;
 
     if (fgets(line_buf, PLINK_LINE_BUF_LEN, fin)) {
-        plink_dara.current_bim_line_index++;
+        
         if (line_buf[PLINK_LINE_BUF_LEN - 1] != '\0') {
             fprintf(stderr, "bim file line buf overflow.\n");
             return 1;
@@ -465,17 +466,18 @@ bimreadline(PLINKFILE plink_dara, BIM_LINE_ptr bim_line)
         return -1;
     }
 
+    plink_dara->current_bim_line_index++;
     return 0;
 }
 
 
 int
-bimreadlines(PLINKFILE plink_data, BIM_LINE_ptr bim_lines, int bim_line_num)
+bimreadlines(PLINKFILE_ptr plink_data, BIM_LINE_ptr bim_lines, int bim_line_num)
 {
 
-    FILE *fin = plink_data.bim_file;
+    FILE *fin = plink_data->bim_file;
     rewind(fin);
-    plink_data.current_bim_line_index = 0;
+    plink_data->current_bim_line_index = 0;
 
     if (bim_line_num != plink_data.variant_num) {
         fprintf(stderr, "bim line number do not match.\n");
@@ -492,19 +494,19 @@ bimreadlines(PLINKFILE plink_data, BIM_LINE_ptr bim_lines, int bim_line_num)
 
 
 int
-bedreaddata(PLINKFILE plink_data, char *bed_data, int bed_data_len)
+bedreaddata(PLINKFILE_ptr plink_data, char *bed_data, int bed_data_len)
 {
     
-    FILE *fin = plink_data.bed_file;
+    FILE *fin = plink_data->bed_file;
     if (bed_data_len != plink_data.individual_num) {
         fprintf(stderr, "bed data length error.\n");
         return 1;
     }
 
-    char *raw_buf = plink_data.bed_raw_per_variant_buf;
-    char *decode_buf = plink_data.bed_decoded_per_variant_buf;
-    int raw_len = plink_data.raw_buf_len;
-    int decode_len = plink_data.decode_buf_len;
+    char *raw_buf = plink_data->bed_raw_per_variant_buf;
+    char *decode_buf = plink_data->bed_decoded_per_variant_buf;
+    int raw_len = plink_data->raw_buf_len;
+    int decode_len = plink_data->decode_buf_len;
     int readlen = 0;
     if ((readlen = fread(raw_buf, sizeof(char), raw_len, fin)) != raw_len) {
         if (readlen == 0) {
@@ -540,27 +542,27 @@ bedreaddata(PLINKFILE plink_data, char *bed_data, int bed_data_len)
         bed_data[i] = decode_buf[i];
     }
 
-    plink_data.current_bed_data_index++;
-    plink_data.bed_byte_offset += raw_len;
+    plink_data->current_bed_data_index++;
+    plink_data->bed_byte_offset += raw_len;
 
     return 0;
 }
 
 
 int
-bedloaddata_n(PLINKFILE plink_data, char *bed_data, size_t bed_data_len,
+bedloaddata_n(PLINKFILE_ptr plink_data, char *bed_data, size_t bed_data_len,
     int start, int end)
 {
 
 
-    FILE *fin = plink_data.bed_file;
-    uint64_t current_pos = plink_data.bed_byte_offset;
-    uint32_t current_bed_data_index = plink_data.current_bed_data_index;
-    uint32_t raw_len = plink_data.raw_buf_len;
-    uint32_t decode_len = plink_data.decode_buf_len;
-    char *raw_buf = plink_data.bed_raw_per_variant_buf;
-    char *decode_buf = plink_data.bed_decoded_per_variant_buf;
-    uint32_t indiv_num = plink_data.individual_num;
+    FILE *fin = plink_data->bed_file;
+    uint64_t current_pos = plink_data->bed_byte_offset;
+    uint32_t current_bed_data_index = plink_data->current_bed_data_index;
+    uint32_t raw_len = plink_data->raw_buf_len;
+    uint32_t decode_len = plink_data->decode_buf_len;
+    char *raw_buf = plink_data->bed_raw_per_variant_buf;
+    char *decode_buf = plink_data->bed_decoded_per_variant_buf;
+    uint32_t indiv_num = plink_data->individual_num;
 
     if (((end - start + 1) * indiv_num) != bed_data_len) {
         fprintf(stderr, "bed data length error.\n");
@@ -569,8 +571,8 @@ bedloaddata_n(PLINKFILE plink_data, char *bed_data, size_t bed_data_len,
 
     uint64_t seek_offset = raw_len * (start - 1) + 3;
     fseek(fin, seek_offset, SEEK_SET);
-    plink_data.current_bed_data_index = start - 1;
-    plink_data.bed_byte_offset = seek_offset;
+    plink_data->current_bed_data_index = start - 1;
+    plink_data->bed_byte_offset = seek_offset;
 
     for (int i = start; i <= end; i++) {
         int status = 0;
@@ -581,23 +583,28 @@ bedloaddata_n(PLINKFILE plink_data, char *bed_data, size_t bed_data_len,
         } else if (status == 1) {
             fprintf(stderr, "read bed failed.\n");
             fseek(fin, current_pos, SEEK_SET);
-            plink_data.current_bed_data_index = current_bed_data_index;
-            plink_data.bed_byte_offset = current_pos;
+            plink_data->current_bed_data_index = current_bed_data_index;
+            plink_data->bed_byte_offset = current_pos;
             return 1;
         }
         
     }
     fseek(fin, current_pos, SEEK_SET);
-    plink_data.current_bed_data_index = current_bed_data_index;
-    plink_data.bed_byte_offset = current_pos;
+    plink_data->current_bed_data_index = current_bed_data_index;
+    plink_data->bed_byte_offset = current_pos;
     return 0;
 }
 
 
 int
-bedloaddata_all(PLINKFILE plink_data, char *bed_data, size_t bed_data_len)
+bedloaddata_all(PLINKFILE_ptr plink_data, char *bed_data, size_t bed_data_len)
 {
-    uint32_t variant_num = plink_data.variant_num;
+    uint32_t variant_num = plink_data->variant_num;
+    uint32_t indi_num = plink_data->individual_num;
+    if (bed_data_len != (variant_num * indi_num)) {
+        fprintf(stderr, "bed mem allocation may not correct.\n");
+        return 1;
+    }
     if (bedloaddata_n(plink_data, bed_data, bed_data_len, 1, variant_num) != 0) {
         return 1;
     }
