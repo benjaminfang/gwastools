@@ -22,12 +22,6 @@
 #endif
 
 
-
-
-typedef struct bed_data {
-
-} BED_DATA, *BED_DATA_ptr;
-
 #define CharM1 0x03
 #define CharM2 0x0c
 #define CharM3 0x30
