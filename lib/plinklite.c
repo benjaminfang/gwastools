@@ -169,36 +169,36 @@ plinkopen(const char *filename)
 
 
 void
-plinkclose(PLINKFILE plink_data)
+plinkclose(PLINKFILE_ptr plink_data)
 {
-    if (plink_data.fam_file) {
-        fclose(plink_data.fam_file);
-        plink_data.fam_file = NULL;
+    if (plink_data->fam_file) {
+        fclose(plink_data->fam_file);
+        plink_data->fam_file = NULL;
     }
 
-    if (plink_data.bim_file) {
-        fclose(plink_data.bim_file);
-        plink_data.bim_file = NULL;
+    if (plink_data->bim_file) {
+        fclose(plink_data->bim_file);
+        plink_data->bim_file = NULL;
     }
 
-    if (plink_data.bed_file) {
-        fclose(plink_data.bed_file);
-        plink_data.bed_file = NULL;
+    if (plink_data->bed_file) {
+        fclose(plink_data->bed_file);
+        plink_data->bed_file = NULL;
     }
 
-    if (plink_data.bed_raw_per_variant_buf) {
-        free(plink_data.bed_raw_per_variant_buf);
-        plink_data.bed_raw_per_variant_buf = NULL;
+    if (plink_data->bed_raw_per_variant_buf) {
+        free(plink_data->bed_raw_per_variant_buf);
+        plink_data->bed_raw_per_variant_buf = NULL;
     }
 
-    if (plink_data.bed_decoded_per_variant_buf) {
-        free(plink_data.bed_decoded_per_variant_buf);
-        plink_data.bed_decoded_per_variant_buf = NULL;
+    if (plink_data->bed_decoded_per_variant_buf) {
+        free(plink_data->bed_decoded_per_variant_buf);
+        plink_data->bed_decoded_per_variant_buf = NULL;
     }
 
-    if (plink_data.line_buf) {
-        free(plink_data.line_buf);
-        plink_data.line_buf = NULL;
+    if (plink_data->line_buf) {
+        free(plink_data->line_buf);
+        plink_data->line_buf = NULL;
     }
     return;
 }
