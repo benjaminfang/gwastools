@@ -1,5 +1,5 @@
 #define SYSINFO_SRC
-#include <stdio.h>
+
 #include "sysinfo.h"
 
 #if defined __amd64__ || __x86_64__
@@ -27,6 +27,7 @@ get_sysinfo(SYSINFO_ptr data_in)
 
 
 #ifdef SYSINFO_TEST
+#include <stdio.h>
 int
 main(void)
 {
