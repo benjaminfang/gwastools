@@ -12,18 +12,14 @@ bodfileopen(const char *filename)
 
     data_out.oii_file = NULL;
     data_out.opi_file = NULL;
-    data_out.bed_file = NULL;
+    data_out.bod_file = NULL;
 
     data_out.current_bod_data_index = 0;
     data_out.current_oii_line_index = 0;
     data_out.current_opi_line_index = 0;
 
-    data_out.oii_offset_byte = 0;
-    data_out.opi_offset_byte = 0;
-    data_out.bed_offset_byte = 0;
+    data_out.bod_offset_byte = 0;
 
-    data_out.bod_buf_len = 0;
-    data_out.bod_data_buf = NULL;
     data_out.bod_line_buf_len = 0;
     data_out.bod_line_buf = NULL;
 
@@ -66,6 +62,7 @@ bodfileopen(const char *filename)
         return data_out;
     }
     data_out.bod_file = fin;
+    free(filename_full);
 
     //get individual number
     uint32_t line_counter = 0;
@@ -90,18 +87,17 @@ bodfileopen(const char *filename)
     data_out.individual_num = line_counter;
     rewind(fin);
 
+
     //get probe number
     fin = data_out.opi_file;
     line_counter = 0;
     last_char = -1;
-
     while ((cc = fgetc(fin)) != EOF) {
         if (cc == '\n') {
             line_counter++;
         }
         last_char = cc;
     }
-
     if (last_char != '\n') {
         fprintf(stderr, "Warning, file not end by new line character.\n");
         line_counter++;
@@ -113,6 +109,7 @@ bodfileopen(const char *filename)
     }
     data_out.probe_num = line_counter;
     rewind(fin);
+
 
     //handle bod file
     fin = data_out.bod_file;
@@ -179,7 +176,7 @@ bodfileopen(const char *filename)
 }
 
 
-void
+int
 bodfileclose(BODFILE_ptr bod_data)
 {
     if (bod_data->oii_file) {
@@ -197,16 +194,52 @@ bodfileclose(BODFILE_ptr bod_data)
         bod_data->bod_file = NULL;
     }
 
-    if (bod_data->bod_data_buf) {
-        free(bod_data->bod_data_buf);
-        bod_data->bod_data_buf = NULL;
-    }
 
     if (bod_data->bod_line_buf) {
-        free(bod_data->bod_data_buf);
-        bod_data->bod_data_buf = NULL;
+        free(bod_data->bod_line_buf);
+        bod_data->bod_line_buf = NULL;
+    }
+    return 0;
+}
+
+
+void
+bodfilerewind(BODFILE_ptr bod_data)
+{
+    if (bod_data->oii_file) {
+        rewind(bod_data->oii_file);
+        bod_data->current_oii_line_index = 0;
+    }
+    if (bod_data->opi_file) {
+        rewind(bod_data->opi_file);
+        bod_data->current_bod_data_index = 0;
+    }
+    if (bod_data->bod_file) {
+        fseek(bod_data->bod_file, 12, SEEK_SET);
+        bod_data->current_bod_data_index = 0;
+        bod_data->bod_offset_byte = 12;
     }
     return;
+}
+
+
+int
+bodfileseek(BODFILE_ptr bod_data, uint32_t seek_len)
+{
+    bodfilerewind(bod_data);
+    OII_LINE oii_line;
+    OPI_LINE opi_line;
+    uint32_t indi_num = bod_data -> individual_num;
+    double *probe_buf = (double *)malloc(sizeof(double) * indi_num);
+
+    for (uint32_t i = 0; i < seek_len; i++) {
+        oiireadline(bod_data, &oii_line);
+        opireadline(bod_data, &opi_line);
+        bodreaddata(bod_data, probe_buf, indi_num);
+    }
+    
+    free(probe_buf);
+    return 0;
 }
 
 
@@ -215,7 +248,7 @@ oiireadline(BODFILE_ptr bod_data, OII_LINE_ptr oii_line)
 {
     FILE *fin = bod_data->oii_file;
     char *line_buf = bod_data->bod_line_buf;
-    line_buf[BOD_LINE_BUFFER_LEN - 1] = '\0';
+    line_buf[BOD_LINE_BUFFER_LEN - 1] = 1;
 
     char family_id[64];
     family_id[63] = '\0';
@@ -230,13 +263,13 @@ oiireadline(BODFILE_ptr bod_data, OII_LINE_ptr oii_line)
 
     if (fgets(line_buf, BOD_LINE_BUFFER_LEN, fin)) {
 
-        if (line_buf[BOD_LINE_BUFFER_LEN - 1] != '\0') {
+        if (line_buf[BOD_LINE_BUFFER_LEN - 1] != 1) {
             fprintf(stderr, "line buffer overflow.\n");
             return BOD_LINE_BUFFER_OVERFLOW;
         }
 
         if (sscanf(line_buf, "%s %s %s %s %s", family_id, indiv_id,
-            parental_id, maternal_id, sex) != 6) {
+            parental_id, maternal_id, sex) != 5) {
             fprintf(stderr, "line buffer split error.\n");
             return BOD_FIELD_SPLIT_FAIL;
         }
@@ -311,7 +344,7 @@ opireadline(BODFILE_ptr bod_data, OPI_LINE_ptr opi_line)
 {
     FILE *fin = bod_data->opi_file;
     char *line_buf = bod_data->bod_line_buf;
-    line_buf[BOD_LINE_BUFFER_LEN - 1] = '\0';
+    line_buf[BOD_LINE_BUFFER_LEN - 1] = 1;
 
     char chrom[16];
     chrom[15] = '\0';
@@ -328,7 +361,7 @@ opireadline(BODFILE_ptr bod_data, OPI_LINE_ptr opi_line)
     int str_len = 0;
 
     if (fgets(line_buf, BOD_LINE_BUFFER_LEN, fin)) {
-        if (line_buf[BOD_LINE_BUFFER_LEN - 1] != '\0') {
+        if (line_buf[BOD_LINE_BUFFER_LEN - 1] != 1) {
             fprintf(stderr, "read oii line buffer overflow.\n");
             return BOD_LINE_BUFFER_OVERFLOW;
         }
@@ -428,7 +461,7 @@ opireadlines(BODFILE_ptr bod_data, OPI_LINE_ptr opi_lines, uint32_t line_num)
     bod_data->current_opi_line_index = 0;
 
     uint32_t line_counter = 0;
-    while (opireadline(bod_data, &(opi_line[line_counter])) == 0) {
+    while (opireadline(bod_data, &(opi_lines[line_counter])) == 0) {
         line_counter++;
     }
 
@@ -437,7 +470,7 @@ opireadlines(BODFILE_ptr bod_data, OPI_LINE_ptr opi_lines, uint32_t line_num)
 
 
 int
-bodreaddata(BODFILE_ptr bod_data, double *bod_readout, uint32_t readout_len)
+bodreaddata(BODFILE_ptr bod_data, double *bod_readout, uint64_t readout_len)
 {
     FILE *fin = bod_data->bod_file;
     uint32_t indi_num = bod_data->individual_num;
@@ -446,7 +479,7 @@ bodreaddata(BODFILE_ptr bod_data, double *bod_readout, uint32_t readout_len)
         return BOD_LINE_NOT_EAQUAL;
     }
 
-    if (fread(bod_readout, readout_len, fin) != readout_len) {
+    if (fread(bod_readout, sizeof(double), readout_len, fin) != readout_len) {
         fprintf(stderr, "read bod file failed.\n");
         return BOD_READ_FAIL;
     }
@@ -459,13 +492,13 @@ bodreaddata(BODFILE_ptr bod_data, double *bod_readout, uint32_t readout_len)
 
 
 int
-bodloaddata_n(BODFILE_ptr bod_data, double *bod_readoutn, uint32_t readout_len,
-    int start, int end)
+bodloaddata_n(BODFILE_ptr bod_data, double *bod_readoutn, uint64_t readout_len,
+    uint32_t start_offset, uint32_t load_length)
 {
     FILE *fin = bod_data->bod_file;
     uint32_t indi_num = bod_data->individual_num;
 
-    if (readout_len != indi_num * (end - start + 1)) {
+    if (readout_len != indi_num * load_length) {
         fprintf(stderr, "read len error.\n");
         return 1;
     }
@@ -473,11 +506,11 @@ bodloaddata_n(BODFILE_ptr bod_data, double *bod_readoutn, uint32_t readout_len,
     uint32_t current_data_index = bod_data->current_bod_data_index;
     uint64_t current_offset = bod_data->bod_offset_byte;
 
-    uint64_t seek_len = sizeof(double) * indi_num * (start - 1);
+    uint64_t seek_len = sizeof(double) * indi_num * start_offset + 12;
 
     fseek(fin, seek_len, SEEK_SET);
 
-    for (int i = start; i <= end; i++) {
+    for (int i = 0; i <= load_length; i++) {
         int status = 0;
         if ((status = bodreaddata(bod_data, bod_readoutn, indi_num)) == 0) {
             bod_readoutn += indi_num;
@@ -496,21 +529,19 @@ bodloaddata_n(BODFILE_ptr bod_data, double *bod_readoutn, uint32_t readout_len,
 
 
 int
-bodloaddata_all(BODFILE_ptr bod_data, double *bod_readoutall, uint32_t readout_len)
+bodloaddata_all(BODFILE_ptr bod_data, double *bod_readoutall, uint64_t readout_len)
 {
-    FILE *fin = bod_data->bod_file;
-
-    uint32_t end = bod_data->probe_num;
-    uint32_t start = 1;
+    uint32_t load_len = bod_data->probe_num;
+    uint32_t start = 0;
 
     uint32_t indi_num = bod_data->individual_num;
     
-    if (readout_len != (end - start + 1) * indi_num) {
+    if (readout_len != load_len * indi_num) {
         fprintf(stderr, "bed malloc len error.\n");
         return 1;
     }
 
-    if (bodloaddata_n(bod_data, bod_readoutall, readout_len, start, end) != 0) {
+    if (bodloaddata_n(bod_data, bod_readoutall, readout_len, start, load_len) != 0) {
         fprintf(stderr, "read bod failed.\n");
         return 1;
     }
