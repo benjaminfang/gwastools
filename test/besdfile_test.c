@@ -20,7 +20,7 @@ main(int argc, char *argv[])
     uint32_t read_len;
     besdreaddata(&besd_data, index_buf, beta_buf, se_buf, variant_num, &read_len);
     for (uint32_t i = 0; i < read_len; i++) {
-        printf("%u %f %f\n", index_buf[i], beta_buf[i], se_buf[i]);
+        printf("%u %e %e\n", index_buf[i], beta_buf[i], se_buf[i]);
     }
 
 
