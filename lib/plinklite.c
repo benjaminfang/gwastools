@@ -585,13 +585,14 @@ bedloaddata_n(PLINKFILE_ptr plink_data, char *bed_data, uint64_t bed_data_len,
     uint32_t indiv_num = plink_data->individual_num;
     uint64_t current_byte_offset = plink_data->bed_byte_offset;
     uint32_t current_data_index = plink_data->current_bed_data_index;
+    uint32_t row_len = plink_data->raw_buf_len;
 
     if ((load_length * indiv_num) != bed_data_len) {
         fprintf(stderr, "bed data length error.\n");
         return 1;
     }
-    uint64_t seek_len = start_offset * indiv_num + 3;
-    fseek(fin, start_offset * indiv_num + 3, SEEK_SET);
+    uint64_t seek_len = start_offset * row_len + 3;
+    fseek(fin, seek_len, SEEK_SET);
     plink_data->bed_byte_offset = seek_len;
     plink_data->current_bed_data_index = start_offset;
     for (int i = 0; i < load_length; i++) {
