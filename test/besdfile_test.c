@@ -9,8 +9,8 @@ int
 main(int argc, char *argv[])
 {
     const char *fname = argv[1];
+    uint32_t probe_index = atoi(argv[2]);
     BESDFILE besd_data;
-
     besdfileopen(fname, &besd_data);
     uint32_t variant_num = besd_data.variant_num;
     uint32_t probe_num = besd_data.probe_num;
@@ -18,7 +18,9 @@ main(int argc, char *argv[])
     float *beta_buf = (float *)malloc(sizeof(float) * variant_num);
     float *se_buf = (float *)malloc(sizeof(float) * variant_num);
     uint32_t read_len;
-    besdreaddata(&besd_data, index_buf, beta_buf, se_buf, variant_num, &read_len);
+    for (int i = 0; i <= probe_index; i++) {
+        besdreaddata(&besd_data, index_buf, beta_buf, se_buf, variant_num, &read_len);
+    }
     for (uint32_t i = 0; i < read_len; i++) {
         printf("%u %e %e\n", index_buf[i], beta_buf[i], se_buf[i]);
     }
